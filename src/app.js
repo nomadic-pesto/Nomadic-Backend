@@ -1,11 +1,10 @@
-const express = require("express");
-const cors = require("cors");
-const helmet = require("helmet");
-const xss = require("xss-clean");
-const mongoSanitize = require("express-mongo-sanitize");
-const compression = require("compression");
-const routes = require("./routes/v1");
-
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const xss = require('xss-clean');
+const mongoSanitize = require('express-mongo-sanitize');
+const compression = require('compression');
+const routes = require('./routes/v1');
 
 const app = express();
 
@@ -27,11 +26,9 @@ app.use(compression());
 
 // enable cors
 app.use(cors());
-app.options("*", cors());
+app.options('*', cors());
 
 // v1 api routes
-// app.use("/v1", routes);
-
-
+app.use('/v1', routes);
 
 module.exports = app;
