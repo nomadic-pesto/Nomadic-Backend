@@ -5,7 +5,9 @@ const AppError = require('./../utils/appError');
 const { promisify } = require('util');
 const sendEmail = require('./../utils/email');
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 
+const client = new OAuth2Client('817056518934-0p9ituunl6pnooif02pfgli1kr4n5ldh.apps.googleusercontent.com');
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -18,7 +20,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
+    confirmPassword: req.body.confirmPassword,
   });
 
   let token = createToken(newUser._id);
@@ -53,10 +55,58 @@ exports.login = catchAsync(async (req, res, next) => {
     status: 'success',
     token,
     data: {
-      user: newUser,
+      user: user,
     },
   });
 });
+
+exports.googlelogin = (req, res) => {
+  const { tokenId } = req.body;
+  client
+    .verifyIdToken({
+      idToken: tokenId,
+      audience: '817056518934-0p9ituunl6pnooif02pfgli1kr4n5ldh.apps.googleusercontent.com',
+    })
+    .then((response) => {
+      const { email_verified, name, email, sub } = response.payload;
+      if (email_verified) {
+        User.findOne({ email }).exec((err, user) => {
+          if (err) {
+            return res.status(400).json({ error: 'something went wrong' });
+          } else {
+            if (user) {
+              const token = createToken(user._id);
+              res.status(200).json({
+                status: 'success',
+                token,
+                data: {
+                  user,
+                },
+              });
+            } else {
+              const newUser = User.create({
+                name: name,
+                email: email,
+                password: sub,
+                confirmPassword: sub,
+              });
+
+              console.log(newUser);
+              const token = createToken(newUser._id);
+              res.status(200).json({
+                status: 'success',
+                token,
+                data: {
+                  newUser,
+                },
+              });
+            }
+          }
+        });
+      }
+      console.log(response.payload);
+    });
+};
 
 exports.userAuthorization = catchAsync(async (req, res, next) => {
   let token;
