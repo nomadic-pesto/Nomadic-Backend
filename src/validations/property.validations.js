@@ -8,6 +8,7 @@ const allProperties = {
         subDestination: Joi.string().allow(null, ""),
         sortBy: Joi.string().allow(null, ""),
         sortOrder: Joi.string().valid('asc','desc').allow(null, ""),
+        search: Joi.string().allow(null, ""),
     }),
   };
 
