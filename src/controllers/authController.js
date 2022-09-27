@@ -140,12 +140,13 @@ exports.userAuthorization = catchAsync(async (req, res, next) => {
 //forgot password controller
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   //find the user
-  const user = User.findOne({ email: req.body.email });
+  const user = await User.findOne({ email: req.body.email });
   if (!user) {
     return next(new AppError('No user found with this email address', 404));
   }
   // create random token
   const resetToken = user.createPasswordResetToken();
+  console.log(resetToken)
   await user.save({ validateBeforeSave: false });
   //create reset url
   const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
@@ -187,7 +188,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('Token is invalid or has expired', 400));
   }
   user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
+  user.confirmPassword = req.body.confirmPassword;
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   await user.save();
@@ -212,7 +213,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   //Now update password
   user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
+  user.confirmPassword = req.body.confirmPassword;
   await user.save();
 
   //send success message

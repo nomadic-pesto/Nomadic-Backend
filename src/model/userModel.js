@@ -66,7 +66,7 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-userSchema.method.changedPasswordAfter = function (jwtTimestamp) {
+userSchema.methods.changedPasswordAfter =  function (jwtTimestamp) {
   if (this.changedAt) {
     const changedTimestamp = parseInt(this.changedAt.getTime() / 1000, 10);
 
@@ -75,7 +75,7 @@ userSchema.method.changedPasswordAfter = function (jwtTimestamp) {
   return false;
 };
 
-userSchema.methods.createpasswordResetToken = function () {
+userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString('hex');
 
   this.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
