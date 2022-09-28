@@ -1,6 +1,7 @@
 const express = require('express');
 const userRoute = require('./userRoutes');
 const propertyRoute = require('./propertyRoutes');
+const uploadRoute = require('./uploadRoute');
 
 const router = express.Router();
 
@@ -12,6 +13,10 @@ const defaultRoutes = [
   {
     path: '/property',
     route: propertyRoute,
+  },
+  {
+    path: '/upload',
+    route: uploadRoute,
   },
 ];
 
