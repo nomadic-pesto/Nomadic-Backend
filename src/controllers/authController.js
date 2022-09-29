@@ -24,6 +24,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
 
   let token = createToken(newUser._id);
+  newUser.password = undefined;
 
   res.status(201).json({
     status: 'success',
@@ -50,6 +51,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
   // if all good send jwt token
   let token = createToken(user._id);
+  user.password = undefined;
 
   res.status(200).json({
     status: 'success',
@@ -90,6 +92,8 @@ exports.googlelogin = (req, res) => {
                 password: sub,
                 confirmPassword: sub,
               });
+              newUser.password = undefined;
+              newUser.confirmPassword = undefined;
 
               console.log(newUser);
               const token = createToken(newUser._id);
@@ -146,7 +150,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
   // create random token
   const resetToken = user.createPasswordResetToken();
-  console.log(resetToken)
+  console.log(resetToken);
   await user.save({ validateBeforeSave: false });
   //create reset url
   const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
@@ -192,7 +196,9 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   await user.save();
-
+  user.confirmPassword = undefined;
+  user.password = undefined;
+  
   //send success message
   res.status(200).json({
     status: 'success',
@@ -215,7 +221,8 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.password = req.body.password;
   user.confirmPassword = req.body.confirmPassword;
   await user.save();
-
+  user.password = undefined;
+  user.confirmPassword = undefined;
   //send success message
   res.status(200).json({
     status: 'success',
