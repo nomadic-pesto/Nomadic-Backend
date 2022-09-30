@@ -1,22 +1,9 @@
 const mongoose = require('mongoose');
-const validator = require('validator');
 
-const propertySchema = new mongoose.Schema({
-  propertyName: {
+const rentalSchema = new mongoose.Schema({
+  rentalName: {
     type: String,
     required: [true, 'Property Name is required'],
-  },
-  streetName: {
-    type: String,
-    required: [true, 'Steet Name is required'],
-  },
-  images: [{
-    type: String,
-  }],
-  price: {
-    type: Number,
-    default: 0,
-    required: [true, 'Price is required'],
   },
   destination: {
     type: String,
@@ -26,13 +13,58 @@ const propertySchema = new mongoose.Schema({
     type: String,
     required: [true, 'Sub-destination is required'],
   },
-  reviewsAverage: {
+  noOfPeopleAccomodate: {
+    type: Number,
+    default: 2,
+    required: [true, 'People accomodation no is required'],},
+  price: {
+    type: Number,
+    default: 0,
+    required: [true, 'Price is required'],
+  },
+  houseType: { 
+    type: String,
+    required: [true, 'House-type is required'] 
+  },
+  amenities: [{ type: String }],
+
+  overview: {type: String,
+    required: [true, 'Overview is required'],
+  },
+  address: {
+    type: String,
+    required: [true, 'Address is required'],
+  },
+
+  streetName: {
+    type: String,
+    required: [true, 'Steet Name is required'],
+  },
+  district: {
+    type: String,
+    required: [true, 'District is required'],
+  },
+  state: {
+    type: String,
+    required: [true, 'State is required'],
+  },
+  images: [
+    {
+      type: String,
+    },
+  ],
+  avgReview: {
+    type: Number,
+    default: 0,
+    required: [true, 'Review Average is required'],
+  },
+  noOfReview: {
     type: Number,
     default: 0,
     required: [true, 'Review Average is required'],
   },
 });
 
-const Property = mongoose.model('Property', propertySchema);
+const Rental = mongoose.model('Rental', rentalSchema);
 
-module.exports = Property;
+module.exports = Rental;
