@@ -5,6 +5,7 @@ const xss = require('xss-clean');
 const mongoSanitize = require('express-mongo-sanitize');
 const compression = require('compression');
 const routes = require('./routes/v1');
+const gloabalErrorHandler = require('./controllers/errorController')
 
 const app = express();
 
@@ -30,5 +31,5 @@ app.options('*', cors());
 
 // v1 api routes
 app.use('/v1', routes);
-
+app.use(gloabalErrorHandler)
 module.exports = app;
