@@ -1,4 +1,3 @@
-const { string } = require('joi');
 const mongoose = require('mongoose');
 
 
@@ -8,7 +7,8 @@ const bookingSchema = new mongoose.Schema({
         required:[true, 'Trasaction ID is required']
     },
     rentalID:{
-        type:String,
+        type:mongoose.SchemaTypes.ObjectId,
+        ref:User,
         required:[true, 'Rental ID is required']
     },
     userID:{
@@ -33,8 +33,8 @@ const bookingSchema = new mongoose.Schema({
     },
     bookingDate:{
         type:Date,
-        required:[true, 'Booking date is required']
-        default: ()=> Date.now(),
+        required:[true, 'Booking date is required'],
+        default: () => Date.now(),
     },
     username:{
         type:String,
