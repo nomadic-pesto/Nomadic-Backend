@@ -1,6 +1,8 @@
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const Rental = require('./../model/rentalModel');
+const RentalFilterFeature = require('./../utils/rentalFilterFeatures');
+const { findByIdAndUpdate } = require('./../model/rentalModel');
 
 exports.addRental = catchAsync(async (req, res, next) => {
 
@@ -21,6 +23,7 @@ exports.addRental = catchAsync(async (req, res, next) => {
     thumbnailImages: req.body.thumbnailImages,
     avgReview: req.body.avgReview,
     noOfReview: req.body.noOfReview,
+    ownerId:req.body.ownerId
   });
 
   res.status(201).json({
@@ -42,4 +45,44 @@ exports.getRentalById = catchAsync(async (req,res,next)=>{
           rental,
         },
     })
+})
+
+
+exports.getAllRental = catchAsync( async (req,res,next)=>{
+    // console.log(req.query)
+    const tour = new RentalFilterFeature(Rental.find(),req.query).destinationFilter().sort().paginate()
+    const tours = await tour.query
+    res.status(200).json({
+        status: 'success',
+        results: tours.length,
+        data: {
+          tours
+        }
+      });
+
+})
+
+exports.getRentalByOwner = catchAsync( async (req,res,next)=>{
+    const rental = await Rental.find({ownerId:req.params.id})
+
+    if(!rental){return new AppError('you have no rental listed', 404)}
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            rental
+        }
+})
+})
+
+exports.updateRental = catchAsync( async(req,res,next)=>{
+    const rental = await Rental.findByIdAndUpdate(req.params.id,req.body,{new: true})
+
+    if(!rental){return new AppError('you have no rental listed', 404)}
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            rental
+        }})
 })

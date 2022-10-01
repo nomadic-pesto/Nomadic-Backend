@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 
+
 const bookingSchema = new mongoose.Schema({
     transactionID:{
         type:String,
@@ -39,7 +40,7 @@ const bookingSchema = new mongoose.Schema({
     username:{
         type:String,
         required:[true, 'Username is required']
-    },
+    }
 
 })
 

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+
 const rentalSchema = new mongoose.Schema({
   rentalName: {
     type: String,
@@ -57,7 +58,7 @@ const rentalSchema = new mongoose.Schema({
   ],
   avgReview: {
     type: Number,
-    default: 0,
+    default: 4,
     required: [true, 'Review Average is required'],
   },
   noOfReview: {
@@ -65,6 +66,10 @@ const rentalSchema = new mongoose.Schema({
     default: 0,
     required: [true, 'Review Average is required'],
   },
+    ownerId:{
+        type: mongoose.Schema.ObjectId,
+        ref:'User'
+    }
 });
 
 const Rental = mongoose.model('Rental', rentalSchema);

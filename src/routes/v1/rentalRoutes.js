@@ -5,8 +5,9 @@ const rentalController = require('./../../controllers/rentalController');
 const router = express.Router();
 
 router.post('/addRental', rentalController.addRental);
-router.patch('/updateRental');
-router.get('/all');
+router.get('/',rentalController.getAllRental);
 router.get('/:id',rentalController.getRentalById);
+router.get('/owner/:id',rentalController.getRentalByOwner);
+router.patch('/:id',rentalController.updateRental);
 
 module.exports = router;
