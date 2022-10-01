@@ -31,5 +31,7 @@ app.options('*', cors());
 
 // v1 api routes
 app.use('/v1', routes);
+
 app.use(gloabalErrorHandler)
+
 module.exports = app;

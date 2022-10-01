@@ -16,26 +16,23 @@ const rentalSchema = new mongoose.Schema({
   noOfPeopleAccomodate: {
     type: Number,
     default: 2,
-    required: [true, 'People accomodation no is required'],},
+    required: [true, 'People accomodation no is required'],
+  },
   price: {
     type: Number,
     default: 0,
     required: [true, 'Price is required'],
   },
-  houseType: { 
+  houseType: {
     type: String,
-    required: [true, 'House-type is required'] 
+    required: [true, 'House-type is required'],
   },
   amenities: [{ type: String }],
-
-  overview: {type: String,
-    required: [true, 'Overview is required'],
-  },
+  overview: { type: String, required: [true, 'Overview is required'] },
   address: {
     type: String,
     required: [true, 'Address is required'],
   },
-
   streetName: {
     type: String,
     required: [true, 'Steet Name is required'],
@@ -48,7 +45,12 @@ const rentalSchema = new mongoose.Schema({
     type: String,
     required: [true, 'State is required'],
   },
-  images: [
+  originalImages: [
+    {
+      type: String,
+    },
+  ],
+  thumbnailImages: [
     {
       type: String,
     },
