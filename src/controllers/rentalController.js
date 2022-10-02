@@ -49,7 +49,22 @@ exports.getRentalById = catchAsync(async (req,res,next)=>{
 
 
 exports.getAllRental = catchAsync( async (req,res,next)=>{
-    // console.log(req.query)
+// removing empty query 
+    Object.keys(req.query).forEach(key=>{
+      if(key === 'price'){
+        let value = req.query[key]
+        Object.keys(value).forEach(key => {
+          if (value[key] === '') {
+            delete value[key];
+          }
+        });
+      }
+      
+      else if(req.query[key]=== ''){
+        delete req.query[key];
+      }
+    })
+ // querying the data
     const tour = new RentalFilterFeature(Rental.find(),req.query).destinationFilter().sort().paginate()
     const tours = await tour.query
     res.status(200).json({
