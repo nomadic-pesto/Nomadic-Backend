@@ -136,7 +136,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\":\"user@email.com\",\n    \"password\":\"minlengthpassword\"\n}",
+							"raw": "{\n    \"password\":\"user@email.com\",\n    \"confirmPassword\":\"minlengthpassword\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -201,6 +201,41 @@
 								"v1",
 								"auth",
 								"updatePassword"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "uploads",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/Users/danielraj/Downloads/wallpapers/31817.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:5001/v1/upload",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5001",
+							"path": [
+								"v1",
+								"upload"
 							]
 						}
 					},

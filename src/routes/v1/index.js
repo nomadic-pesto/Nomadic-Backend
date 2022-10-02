@@ -1,6 +1,8 @@
 const express = require('express');
 const userRoute = require('./userRoutes');
 const propertyRoute = require('./propertyRoutes');
+const uploadRoute = require('./uploadRoute');
+
 const rentalRoute = require('./rentalRoutes');
 const bookingRoute = require('./bookingRoute')
 
@@ -17,6 +19,10 @@ const defaultRoutes = [
     route: propertyRoute,
   },
   {
+
+    path: '/upload',
+    route: uploadRoute,
+
     path: '/rental',
     route: rentalRoute,
   },  {

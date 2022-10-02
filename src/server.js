@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 dotenv.config({ path: './src/config.env' });
 const app = require('./app');
 
-const URI = process.env.DATABASE.replace('<password>', process.env.DATABASE_PASSWORD);//"mongodb://localhost:27017/nomadic"
+const URI = process.env.DATABASE.replace('<password>', process.env.DATABASE_PASSWORD); //"mongodb://localhost:27017/nomadic"
 
 const connectDB = async () => {
   try {
