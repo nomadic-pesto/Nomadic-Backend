@@ -1,6 +1,9 @@
 const express = require('express');
 const userRoute = require('./userRoutes');
 const propertyRoute = require('./propertyRoutes');
+const rentalRoute = require('./rentalRoutes');
+const bookingRoute = require('./bookingRoute')
+
 
 const router = express.Router();
 
@@ -12,6 +15,13 @@ const defaultRoutes = [
   {
     path: '/property',
     route: propertyRoute,
+  },
+  {
+    path: '/rental',
+    route: rentalRoute,
+  },  {
+    path: '/booking',
+    route: bookingRoute,
   },
 ];
 

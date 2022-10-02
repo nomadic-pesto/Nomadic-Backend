@@ -1,4 +1,4 @@
-const Property = require('./../model/propertyModel');
+const Property = require('../model/rentalModel');
 
 const getAllPropertiesService = async (skip, limit,destination,subDestination,sortBy,sortOrder) => {
   try {
