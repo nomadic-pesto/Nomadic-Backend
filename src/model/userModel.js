@@ -32,8 +32,8 @@ const userSchema = new mongoose.Schema({
     },
     message: 'passwords are not the same',
   },
-  address:String,
-  mobileNumber:Number,
+  address: String,
+  mobileNumber: Number,
   isEmailVerfied: {
     type: Boolean,
     default: false,
@@ -51,7 +51,7 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
 
   // Delete passwordConfirm field
-  this.passwordConfirm = undefined;
+  this.confirmPassword = undefined;
   next();
 });
 
@@ -66,7 +66,7 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-userSchema.methods.changedPasswordAfter =  function (jwtTimestamp) {
+userSchema.methods.changedPasswordAfter = function (jwtTimestamp) {
   if (this.changedAt) {
     const changedTimestamp = parseInt(this.changedAt.getTime() / 1000, 10);
 
