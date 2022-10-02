@@ -2,7 +2,7 @@ const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const Rental = require('./../model/rentalModel');
 const RentalFilterFeature = require('./../utils/rentalFilterFeatures');
-const { findByIdAndUpdate } = require('./../model/rentalModel');
+
 
 exports.addRental = catchAsync(async (req, res, next) => {
 
@@ -88,6 +88,20 @@ exports.getRentalByOwner = catchAsync( async (req,res,next)=>{
             rental
         }
 })
+})
+
+exports.searchForRental = catchAsync( async (req,res,next)=>{
+  const rentals = await Rental.find({$or:[{destination:req.query.data},{subDestination:req.query.data},{rentalName:req.query.data}]})
+
+  if(!rentals){ return new AppError('No rental found', 404)}
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+        rentals
+    }
+})
+
 })
 
 exports.updateRental = catchAsync( async(req,res,next)=>{
