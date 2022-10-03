@@ -1,41 +1,42 @@
 const mongoose = require('mongoose');
 
+
 const rentalSchema = new mongoose.Schema({
   rentalName: {
     type: String,
     required: [true, 'Property Name is required'],
+    lowercase: true,
   },
   destination: {
     type: String,
     required: [true, 'Destination is required'],
+    lowercase: true,
   },
   subDestination: {
     type: String,
     required: [true, 'Sub-destination is required'],
+    lowercase: true,
   },
   noOfPeopleAccomodate: {
     type: Number,
     default: 2,
-    required: [true, 'People accomodation no is required'],},
+    required: [true, 'People accomodation no is required'],
+  },
   price: {
     type: Number,
     default: 0,
     required: [true, 'Price is required'],
   },
-  houseType: { 
+  houseType: {
     type: String,
-    required: [true, 'House-type is required'] 
+    required: [true, 'House-type is required'],
   },
   amenities: [{ type: String }],
-
-  overview: {type: String,
-    required: [true, 'Overview is required'],
-  },
+  overview: { type: String, required: [true, 'Overview is required'] },
   address: {
     type: String,
     required: [true, 'Address is required'],
   },
-
   streetName: {
     type: String,
     required: [true, 'Steet Name is required'],
@@ -48,14 +49,19 @@ const rentalSchema = new mongoose.Schema({
     type: String,
     required: [true, 'State is required'],
   },
-  images: [
+  originalImages: [
+    {
+      type: String,
+    },
+  ],
+  thumbnailImages: [
     {
       type: String,
     },
   ],
   avgReview: {
     type: Number,
-    default: 0,
+    default: 4,
     required: [true, 'Review Average is required'],
   },
   noOfReview: {
@@ -63,6 +69,10 @@ const rentalSchema = new mongoose.Schema({
     default: 0,
     required: [true, 'Review Average is required'],
   },
+    ownerId:{
+        type: mongoose.Schema.ObjectId,
+        ref:'User'
+    }
 });
 
 const Rental = mongoose.model('Rental', rentalSchema);

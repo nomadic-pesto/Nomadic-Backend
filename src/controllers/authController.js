@@ -5,7 +5,9 @@ const AppError = require('./../utils/appError');
 const { promisify } = require('util');
 const sendEmail = require('./../utils/email');
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 
+const client = new OAuth2Client('817056518934-0p9ituunl6pnooif02pfgli1kr4n5ldh.apps.googleusercontent.com');
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -18,10 +20,11 @@ exports.signup = catchAsync(async (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
+    confirmPassword: req.body.confirmPassword,
   });
 
   let token = createToken(newUser._id);
+  newUser.password = undefined;
 
   res.status(201).json({
     status: 'success',
@@ -48,15 +51,66 @@ exports.login = catchAsync(async (req, res, next) => {
   }
   // if all good send jwt token
   let token = createToken(user._id);
+  user.password = undefined;
 
   res.status(200).json({
     status: 'success',
     token,
     data: {
-      user: newUser,
+      user: user,
     },
   });
 });
+
+exports.googlelogin = (req, res) => {
+  const { tokenId } = req.body;
+  client
+    .verifyIdToken({
+      idToken: tokenId,
+      audience: '817056518934-0p9ituunl6pnooif02pfgli1kr4n5ldh.apps.googleusercontent.com',
+    })
+    .then((response) => {
+      const { email_verified, name, email, sub } = response.payload;
+      if (email_verified) {
+        User.findOne({ email }).exec((err, user) => {
+          if (err) {
+            return res.status(400).json({ error: 'something went wrong' });
+          } else {
+            if (user) {
+              const token = createToken(user._id);
+              res.status(200).json({
+                status: 'success',
+                token,
+                data: {
+                  user,
+                },
+              });
+            } else {
+              const newUser = User.create({
+                name: name,
+                email: email,
+                password: sub,
+                confirmPassword: sub,
+              });
+              newUser.password = undefined;
+              newUser.confirmPassword = undefined;
+
+              console.log(newUser);
+              const token = createToken(newUser._id);
+              res.status(200).json({
+                status: 'success',
+                token,
+                data: {
+                  newUser,
+                },
+              });
+            }
+          }
+        });
+      }
+      console.log(response.payload);
+    });
+};
 
 exports.userAuthorization = catchAsync(async (req, res, next) => {
   let token;
@@ -90,12 +144,13 @@ exports.userAuthorization = catchAsync(async (req, res, next) => {
 //forgot password controller
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   //find the user
-  const user = User.findOne({ email: req.body.email });
+  const user = await User.findOne({ email: req.body.email });
   if (!user) {
     return next(new AppError('No user found with this email address', 404));
   }
   // create random token
   const resetToken = user.createPasswordResetToken();
+  console.log(resetToken);
   await user.save({ validateBeforeSave: false });
   //create reset url
   const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
@@ -137,11 +192,15 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('Token is invalid or has expired', 400));
   }
   user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
+  user.confirmPassword = req.body.confirmPassword;
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
-  await user.save();
 
+  await user.save();
+  user.confirmPassword = undefined;
+  user.password = undefined;
+
+  
   //send success message
   res.status(200).json({
     status: 'success',
@@ -162,9 +221,10 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   //Now update password
   user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
+  user.confirmPassword = req.body.confirmPassword;
   await user.save();
-
+  user.password = undefined;
+  user.confirmPassword = undefined;
   //send success message
   res.status(200).json({
     status: 'success',
