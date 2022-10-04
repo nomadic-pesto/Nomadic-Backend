@@ -45,7 +45,7 @@ class RentalFilterFeature {
     this.query = await this.query.find({
       $or: [
         { destination: this.queryString.data },
-        { subDestinationt: this.queryString.data },
+        { subDestination: this.queryString.data },
         { rentalName: this.queryString.data },
       ],
     }).select(
