@@ -4,10 +4,11 @@ const bookingController = require('./../../controllers/bookingController')
 
 const router = express.Router();
 
-router.post('/bookARental', );
-router.get('/getBlockDate', );
-router.patch('/cancelBooking', );
-router.get('/getAllBooking', );
+router.get('/getBlockDate/:id',bookingController.getBlockedDates );
+router.get('/getAllBookingAdmin/:id', bookingController.getAllBookingsAdmin );
+router.get('/getAllBookingUser/:id', bookingController.getAllBookingsUser );
+router.post('/bookARental',bookingController.bookaRental );
+router.patch('/cancelBooking/:id',bookingController.cancelBooking );
 
 
 module.exports = router;

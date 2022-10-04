@@ -4,7 +4,7 @@ const Rental = require('./../model/rentalModel');
 const RentalFilterFeature = require('./../utils/rentalFilterFeatures');
 
 
-exports.addRental = catchAsync(async (req, res, next) => {
+exports.addRental = catchAsync( async (req, res, next) => {
 
   const newRental = await Rental.create({
     rentalName: req.body.rentalName,

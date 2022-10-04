@@ -9,11 +9,12 @@ const bookingSchema = new mongoose.Schema({
     },
     rentalID:{
         type:mongoose.SchemaTypes.ObjectId,
-        ref:User,
+        ref:'Rental',
         required:[true, 'Rental ID is required']
     },
     userID:{
-        type:String,
+        type:mongoose.SchemaTypes.ObjectId,
+        ref:'User',
         required:[true, 'User ID is required']
     },
     isStayCompleted:{
@@ -37,17 +38,23 @@ const bookingSchema = new mongoose.Schema({
         required:[true, 'Booking date is required'],
         default: () => Date.now(),
     },
-    username:{
+    userEmail:{
         type:String,
         required:[true, 'Username is required']
     },
-    userId:{
-        type:mongoose.Schema.ObjectId,
-        ref:'User'
+    ownerId:{
+        type:mongoose.SchemaTypes.ObjectId,
+        ref:'User',
+        required:[true, 'Owner ID is required']
+    },
+    bookingCost:{
+        type:Number,
+        required:[true, 'Enter the price for the booking']
     }
-
 })
 
 
 
-const Bookings = mongoose.model('Bookings', bookingSchema)
+ Bookings = mongoose.model('Bookings', bookingSchema)
+
+ module.exports = Bookings;
