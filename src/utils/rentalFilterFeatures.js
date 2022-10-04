@@ -9,8 +9,14 @@ class RentalFilterFeature {
     const queryObj = { ...this.queryString };
     const excludedFields = ['sort', 'page', 'limit'];
     excludedFields.forEach((el) => delete queryObj[el]);
-    // console.log(queryObj)
-
+    
+    if(this.queryString.search && this.queryString.search!==''){
+      queryObj['$or'] = [
+        { destination: { $regex: `.*${this.queryString.search}.*`, $options: "i" } },
+        { subDestination: { $regex: `.*${this.queryString.search}.*`, $options: "i" } },
+        { rentalName: { $regex: `.*${this.queryString.search}.*`, $options: "i" } }
+      ]
+    }
     //adding $ infront on gte and lte which is not included in query params
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
@@ -44,9 +50,9 @@ class RentalFilterFeature {
     // const queryData = this.queryString.data
     this.query = await this.query.find({
       $or: [
-        { destination: this.queryString.data },
-        { subDestinationt: this.queryString.data },
-        { rentalName: this.queryString.data },
+        { destination: { $regex: `.*${this.queryString.data}.*`, $options: "i" } },
+        { subDestination: { $regex: `.*${this.queryString.data}.*`, $options: "i" } },
+        { rentalName: { $regex: `.*${this.queryString.data}.*`, $options: "i" } }
       ],
     }).select(
       'rentalName destination subDestination noOfPeopleAccomodate price thumbnailImages avgReview'
