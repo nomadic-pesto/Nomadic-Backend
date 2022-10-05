@@ -5,6 +5,7 @@ const uploadRoute = require('./uploadRoute');
 
 const rentalRoute = require('./rentalRoutes');
 const bookingRoute = require('./bookingRoute')
+const wishlistRoute = require('./wishlistRoute')
 
 
 const router = express.Router();
@@ -28,6 +29,10 @@ const defaultRoutes = [
   },  {
     path: '/booking',
     route: bookingRoute,
+  },
+  {
+    path: '/wishlist',
+    route: wishlistRoute,
   },
 ];
 
