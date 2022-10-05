@@ -10,3 +10,8 @@ const wishlistSchema = mongoose.Schema({
         ref:'Rental'
     }
 })
+
+
+const Wishlist = mongoose.model('Wishlist',wishlistSchema);
+
+module.exports = Wishlist;
