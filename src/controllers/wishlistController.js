@@ -14,6 +14,18 @@ exports.getAllWishlist = catchAsync (async (req,res,next)=>{
     },
     })
 })
+exports.getAllWishlistData = catchAsync (async (req,res,next)=>{
+    const allWishlist = await Wishlist.find({userId:req.params.id}).populate({path:'rentalId', select:['rentalName','subDestination','price','state','originalImages','noOfPeopleAccomodate']})
+
+    if(!allWishlist){return new AppError('No wishlist found', 400)}
+
+    res.status(200).json({
+        status: 'success',
+    data: {
+        allWishlist
+    },
+    })
+})
 
 exports.addToWishlist = catchAsync (async (req,res,next)=>{
     const wishlist = await Wishlist.create({
