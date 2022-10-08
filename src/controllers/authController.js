@@ -23,24 +23,25 @@ exports.signup = catchAsync(async (req, res, next) => {
       password: req.body.password,
       confirmPassword: req.body.confirmPassword,
     });
+    let token = createToken(newUser._id);
+    newUser.password = undefined;
+  
+    res.status(201).json({
+      status: 'success',
+      token,
+      data: {
+        user: newUser,
+      },
+    });
   } catch (error) {
     if (error.code === 11000) {
       const value = error.keyValue.email;
       const message = `Duplicate field value: ${value}. Please use another value!`;
-      res.status(400).json({ status: 'fail', data: message });
+      res.status(403).json({ status: 'fail', data: message });
     }
   }
 
-  let token = createToken(newUser._id);
-  newUser.password = undefined;
 
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
 });
 
 // login controller
