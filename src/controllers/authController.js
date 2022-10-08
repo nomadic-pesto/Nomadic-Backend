@@ -231,3 +231,23 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
     data: { user },
   });
 });
+
+exports.updateUser = catchAsync(async (req,res,next)=>{
+  // Get user and update user from collection
+
+  const user = await User.findByIdAndUpdate(req.user.id,req.body,{
+    new: true,
+    runValidators: false
+  })
+
+
+
+  res.status(200).json({
+    status: 'success',
+    data: { user },
+  });
+})
+
+
+
+
