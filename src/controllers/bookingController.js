@@ -64,7 +64,7 @@ exports.getAllBookingsAdmin =  catchAsync( async(req,res,next)=>{
     
     console.log(new mongoose.Types.ObjectId(req.params.id))
     // const bookings = await Booking.find({ownerId: new mongoose.Types.ObjectId(req.params.id)}).populate({path:'rentalID', select:['rentalName','subDestination']}).populate({path:'userID', select:['name','email']})
-    const bookings = await Booking.find({ownerId: req.params.id}).populate({path:'rentalID', select:['rentalName','subDestination']}).populate({path:'userID', select:['name','email']})
+    const bookings = await Booking.find({ownerId: req.params.id}).populate({path:'rentalID', select:['rentalName','subDestination','originalImages','price','state','noOfPeopleAccomodate']}).populate({path:'userID', select:['name','email']})
     if(!bookings){ return new AppError('There is no booking for your rental', 404)}
 
     res.status(200).json({
@@ -74,7 +74,7 @@ exports.getAllBookingsAdmin =  catchAsync( async(req,res,next)=>{
 })
 
 exports.getAllBookingsUser =  catchAsync( async(req,res,next)=>{
-    const bookings = await Booking.find({userID:req.params.id}).populate({path:'rentalID', select:['rentalName','subDestination','noOfPeopleAccomodate']})
+    const bookings = await Booking.find({userID:req.params.id}).populate({path:'rentalID', select:['rentalName','subDestination','noOfPeopleAccomodate','originalImages','price','state']})
 
     if(!bookings){ return new AppError('you have made no booking', 404)}
 
