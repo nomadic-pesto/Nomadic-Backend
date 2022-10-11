@@ -36,7 +36,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   } catch (error) {
     if (error.code === 11000) {
       const value = error.keyValue.email;
-      const message = `Duplicate field value: ${value}. Please use another value!`;
+      const message = `User with this email: ${value} allready exist. Please use another email!`;
       res.status(403).json({ status: 'fail', data: message });
     }
   }
