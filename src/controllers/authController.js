@@ -16,23 +16,32 @@ const createToken = (id) => {
 
 // signup controller
 exports.signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    confirmPassword: req.body.confirmPassword,
-  });
+  try {
+    const newUser = await User.create({
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      confirmPassword: req.body.confirmPassword,
+    });
+    let token = createToken(newUser._id);
+    newUser.password = undefined;
+  
+    res.status(201).json({
+      status: 'success',
+      token,
+      data: {
+        user: newUser,
+      },
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      const value = error.keyValue.email;
+      const message = `User with this email: ${value} allready exist. Please use another email!`;
+      res.status(403).json({ status: 'fail', data: message });
+    }
+  }
 
-  let token = createToken(newUser._id);
-  newUser.password = undefined;
 
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
 });
 
 // login controller
@@ -200,7 +209,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.confirmPassword = undefined;
   user.password = undefined;
 
-  
   //send success message
   res.status(200).json({
     status: 'success',
@@ -232,22 +240,16 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.updateUser = catchAsync(async (req,res,next)=>{
+exports.updateUser = catchAsync(async (req, res, next) => {
   // Get user and update user from collection
 
-  const user = await User.findByIdAndUpdate(req.user.id,req.body,{
+  const user = await User.findByIdAndUpdate(req.user.id, req.body, {
     new: true,
-    runValidators: false
-  })
-
-
+    runValidators: false,
+  });
 
   res.status(200).json({
     status: 'success',
     data: { user },
   });
-})
-
-
-
-
+});

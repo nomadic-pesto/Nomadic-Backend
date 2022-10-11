@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
 const rentalSchema = new mongoose.Schema({
   rentalName: {
     type: String,
@@ -69,12 +68,13 @@ const rentalSchema = new mongoose.Schema({
     default: 0,
     required: [true, 'Review Average is required'],
   },
-    ownerId:{
-        type: mongoose.Schema.ObjectId,
-        ref:'User'
-    }
+  ownerId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+  },
 });
 
+rentalSchema.index({ rentalName: 1, destination: 1, subDestination: 1, price: 1, avgReview: -1, ownerId: 1 });
 const Rental = mongoose.model('Rental', rentalSchema);
 
 module.exports = Rental;
