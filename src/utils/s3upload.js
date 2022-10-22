@@ -3,7 +3,6 @@ const uuid = require('uuid').v4;
 
 s3Upload = async (files) => {
   const s3 = new S3();
-
   const params = files.map((file) => {
     return {
       Bucket: process.env.AWS_BUCKET_NAME,
