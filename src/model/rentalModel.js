@@ -65,7 +65,7 @@ const rentalSchema = new mongoose.Schema({
   },
   noOfReview: {
     type: Number,
-    default: 0,
+    default: 30,
     required: [true, 'Review Average is required'],
   },
   ownerId: {
