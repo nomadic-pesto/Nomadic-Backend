@@ -23,7 +23,8 @@ exports.addRental = catchAsync( async (req, res, next) => {
     thumbnailImages: req.body.thumbnailImages,
     avgReview: req.body.avgReview,
     noOfReview: req.body.noOfReview,
-    ownerId:req.body.ownerId
+    ownerId:req.body.ownerId,
+    userReview:req.body.userReview
   });
 
   res.status(201).json({
