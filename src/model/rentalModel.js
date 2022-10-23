@@ -72,6 +72,12 @@ const rentalSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: 'User',
   },
+  userReview:[{
+    name:String,
+    date:String,
+    rating:String,
+    review:String,}
+  ]
 });
 
 rentalSchema.index({ rentalName: 1, destination: 1, subDestination: 1, price: 1, avgReview: -1, ownerId: 1 });
