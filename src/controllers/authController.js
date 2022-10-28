@@ -1,5 +1,5 @@
+// impoting dependencies
 const jwt = require('jsonwebtoken');
-const User = require('./../model/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const { promisify } = require('util');
@@ -7,7 +7,13 @@ const sendEmail = require('./../utils/email');
 const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
 
+//importing user modal
+const User = require('./../model/userModel');
+
+//
 const client = new OAuth2Client('817056518934-0p9ituunl6pnooif02pfgli1kr4n5ldh.apps.googleusercontent.com');
+
+//JST token generator
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -71,6 +77,7 @@ exports.login = catchAsync(async (req, res, next) => {
   });
 });
 
+//googlelogin 
 exports.googlelogin = (req, res) => {
   const { tokenId } = req.body;
   client

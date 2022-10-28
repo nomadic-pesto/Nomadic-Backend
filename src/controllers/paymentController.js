@@ -1,5 +1,4 @@
 const catchAsync = require('./../utils/catchAsync');
-const AppError = require('./../utils/appError');
 const razorpayInstance = require('./../server')
 const crypto = require('crypto')
 
