@@ -1,8 +1,12 @@
+//importing mongoose 
 const mongoose = require('mongoose');
+
+// importing dependencies
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const crypto = require('crypto');
 
+//user schema
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -42,6 +46,8 @@ const userSchema = new mongoose.Schema({
   passwordResetToken: String,
   passwordResetExpires: Date,
 });
+
+//mongo methods for pre and post data validation
 
 // hashing the password before saving it
 userSchema.pre('save', async function (next) {

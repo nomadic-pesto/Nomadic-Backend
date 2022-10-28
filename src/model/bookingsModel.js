@@ -1,5 +1,7 @@
+//importing mongoose
 const mongoose = require('mongoose');
 
+//booking schema
 const bookingSchema = new mongoose.Schema({
   transactionID: {
     type: String,

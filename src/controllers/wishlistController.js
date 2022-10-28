@@ -1,8 +1,7 @@
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const Wishlist = require('./../model/wishlistModel');
-const { find } = require('lodash');
-const { findOne } = require('../model/userModel');
+
 
 exports.getAllWishlist = catchAsync(async (req, res, next) => {
   const allWishlist = await Wishlist.find({ userId: req.params.id });

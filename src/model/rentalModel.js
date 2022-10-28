@@ -1,5 +1,7 @@
+//importing mongoose
 const mongoose = require('mongoose');
 
+//rental schema
 const rentalSchema = new mongoose.Schema({
   rentalName: {
     type: String,
