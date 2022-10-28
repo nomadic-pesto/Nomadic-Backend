@@ -1,7 +1,8 @@
+// importing express and multer
 const express = require('express');
 const multer = require('multer');
-const awsupload = require('./../controllers/uploadController');
 
+//creating express instance
 const app = express();
 
 const storage = multer.memoryStorage();

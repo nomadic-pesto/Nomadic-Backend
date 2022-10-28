@@ -1,5 +1,7 @@
+//imporitng mongoose
 const mongoose = require('mongoose')
 
+//wishlist schema
 const wishlistSchema = mongoose.Schema({
     userId:{
         type:mongoose.Schema.ObjectId,
