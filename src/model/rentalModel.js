@@ -4,17 +4,14 @@ const rentalSchema = new mongoose.Schema({
   rentalName: {
     type: String,
     required: [true, 'Property Name is required'],
-    lowercase: true,
   },
   destination: {
     type: String,
     required: [true, 'Destination is required'],
-    lowercase: true,
   },
   subDestination: {
     type: String,
     required: [true, 'Sub-destination is required'],
-    lowercase: true,
   },
   noOfPeopleAccomodate: {
     type: Number,
