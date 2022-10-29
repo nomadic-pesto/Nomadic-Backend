@@ -4,7 +4,7 @@ const multer = require('multer');
 
 //creating express instance
 const app = express();
-
+//intiating multer instace
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
@@ -15,12 +15,14 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+//upload
 const upload = multer({
   storage,
   fileFilter,
   limits: { fileSize: 1000000000, files: 5 },
 });
 
+//multer error parameter
 app.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
