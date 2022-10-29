@@ -67,7 +67,6 @@ exports.getAllRental = catchAsync( async (req,res,next)=>{
     })
  // querying the data
     const tour = new RentalFilterFeature(Rental.find(),req.query).destinationFilter().sort().paginate()
-    console.log(req.query)
     const tours = await tour.query
     res.status(200).json({
         status: 'success',
@@ -107,10 +106,7 @@ exports.searchForRental = catchAsync( async (req,res,next)=>{
       delete req.query[key];
     }
   })
-  // const rentals = await Rental.find({$or:[{destination:req.query.data},{subDestination:req.query.data},{rentalName:req.query.data}]})
-console.log(req.query.data)
 
-  console.log(req.query.data)
   let rentals = await  new RentalFilterFeature(Rental.find(),req.query).searchFilter()
   rentals = rentals.query
   if(!rentals){ return new AppError('No rental found', 404)}
