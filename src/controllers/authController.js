@@ -111,7 +111,6 @@ exports.googlelogin = (req, res) => {
               newUser.password = undefined;
               newUser.confirmPassword = undefined;
 
-              console.log(newUser);
               const token = createToken(newUser._id);
               res.status(200).json({
                 status: 'success',
@@ -124,7 +123,6 @@ exports.googlelogin = (req, res) => {
           }
         });
       }
-      console.log(response.payload);
     });
 };
 
@@ -166,7 +164,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
   // create random token
   const resetToken = user.createPasswordResetToken();
-  console.log(resetToken);
   await user.save({ validateBeforeSave: false });
   //create reset url
   const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;

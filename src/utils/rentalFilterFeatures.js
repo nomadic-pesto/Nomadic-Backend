@@ -32,11 +32,10 @@ class RentalFilterFeature {
 
   async searchFilter () {
     //excluding sort filter from the query
-    // console.log(this.queryString)
     const queryObj = { ...this.queryString };
     const excludedFields = ['data', 'sort', 'page', 'limit'];
     excludedFields.forEach((el) => delete queryObj[el]);
-    // console.log(queryObj)
+
 
     //adding $ infront on gte and lte which is not included in query params
     let queryStr = JSON.stringify(queryObj);

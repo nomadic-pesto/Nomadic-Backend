@@ -13,7 +13,6 @@ const URI = process.env.DATABASE.replace('<password>', process.env.DATABASE_PASS
 const connectDB = async () => {
   try {
     await mongoose.connect(URI);
-    console.log('connected to DB successfully');
   } catch (error) {
     console.error(error);
   }
@@ -27,5 +26,4 @@ connectDB();
 const port = process.env.PORT || 3000;
 //app server intiating with port no
 app.listen(port, () => {
-  console.log(`listening on port ${port} `);
 });

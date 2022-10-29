@@ -11,7 +11,7 @@ exports.checkout = catchAsync( async(req,res,next)=>{
         currency:'INR'
     };
     const order = await razorpayInstance.instance.orders.create(options);
-console.log(order)
+
 
 res.status(200).json({
     success: true,
@@ -29,7 +29,7 @@ exports.paymentVerification = catchAsync(async (req, res) => {
       .digest("hex");
   
     const isAuthentic = expectedSignature === req.body.razorpay_signature;
-    console.log(isAuthentic)
+
   
     if (isAuthentic) {
     res.status(200).json({
