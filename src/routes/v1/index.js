@@ -38,6 +38,7 @@ const defaultRoutes = [
   },
 ];
 
+//passing all default routes
 defaultRoutes.forEach((route) => {
   router.use(route.path, route.route);
 });

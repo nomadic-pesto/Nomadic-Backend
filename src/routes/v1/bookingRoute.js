@@ -6,7 +6,7 @@ const bookingController = require('./../../controllers/bookingController')
 //creating route
 const router = express.Router();
 
-//defining methods
+//defining methods for booking 
 router.get('/getBlockDate/:id', bookingController.getBlockedDates );
 router.get('/getAllBookingAdmin/:id',authController.userAuthorization, bookingController.getAllBookingsAdmin );
 router.get('/getAllBookingUser/:id',authController.userAuthorization, bookingController.getAllBookingsUser );
