@@ -10,7 +10,7 @@ const router = express.Router();
 router.post('/addRental',authController.userAuthorization, rentalController.addRental);
 router.get('/',rentalController.getAllRental);
 router.get('/search/',rentalController.searchForRental);
-router.get('/:id',authController.userAuthorization, rentalController.getRentalById);
+router.get('/:id', rentalController.getRentalById);
 router.get('/owner/:id',authController.userAuthorization, rentalController.getRentalByOwner);
 router.patch('/:id',authController.userAuthorization, rentalController.updateRental);
 
