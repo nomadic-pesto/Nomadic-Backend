@@ -17,11 +17,21 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
     ownerId: req.body.ownerId,
     bookingCost: req.body.bookingCost,
   });
-  // .populate({path:'ownerId',select:['name','email']})
 
+//error if booking create fails
   if (!booking) {
     return new AppError('Booking failed', 404);
   }
+  //check if dates are allready booked
+  const blockedDates = await Booking.find({ rentalID: req.body.rentalID }).select('startDate endDate');
+  blockedDates.map((date)=>{
+    if(new Date(req.body.startDate) >=date.startDate || new Date(req.body.endDate) <= date.endDate){
+      res.status(403).json({
+        status: 'fail',
+        message:'date is allready occupied'
+      });
+    }
+  })
 
   res.status(201).json({
     status: 'success',
