@@ -1,7 +1,8 @@
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const Booking = require('./../model/bookingsModel');
-
+const sendEmail = require('./../utils/email');
+const User = require('./../model/userModel');
 
 exports.bookaRental = catchAsync(async (req, res, next) => {
   const booking = await Booking.create({
@@ -31,6 +32,18 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
         message:'date is allready occupied'
       });
     }
+  const userMessage=`thanks for booking with us`
+  await sendEmail({
+    email: req.body.userEmail,
+    subject: 'Thanks for booking with nomadic',
+    userMessage,
+  })
+  const owenerDetails = await User.findById(req.body.ownerId)
+  const ownerMessage=`thanks for booking with us`
+  await sendEmail({
+    email: owenerDetails.email,
+    subject: 'Thanks for booking with nomadic',
+    ownerMessage,
   })
 
   res.status(201).json({
@@ -43,7 +56,7 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
 
 exports.cancelBooking = catchAsync(async (req, res, next) => {
   const booking = await Booking.findById(req.params.id);
-
+  console.log(booking)
   if (!booking) {
     return new AppError('Record of booking with given ID is not found', 404);
   } else if (86400 <= Date.now() - booking.startDate) {
@@ -55,6 +68,21 @@ exports.cancelBooking = catchAsync(async (req, res, next) => {
 
   booking.isCancelled = req.body.isCancelled;
   await booking.save();
+
+  const userMessage=`booking cancelled successfully, `
+  await sendEmail({
+    email: booking.email,
+    subject: 'Booking cancelled',
+    userMessage,
+  })
+  
+  const ownerMessage=`User has canclled booking on your rental `
+  const owenerDetails = await User.findById(booking.ownerId)
+  await sendEmail({
+    email: owenerDetails.email,
+    subject: 'Booking cancelled',
+    ownerMessage,
+  })
 
   res.status(200).json({
     status: 'success',

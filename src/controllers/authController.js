@@ -31,7 +31,13 @@ exports.signup = catchAsync(async (req, res, next) => {
     });
     let token = createToken(newUser._id);
     newUser.password = undefined;
-  
+    
+    const message = `Thanks for signing up with Nomadic`
+      await sendEmail({
+        email: req.body.email,
+        subject: 'Welcome to nomadic',
+        message,
+      })
     res.status(201).json({
       status: 'success',
       token,
@@ -88,7 +94,7 @@ exports.googlelogin = (req, res) => {
     .then((response) => {
       const { email_verified, name, email, sub } = response.payload;
       if (email_verified) {
-        User.findOne({ email }).exec((err, user) => {
+        User.findOne({ email }).exec(async(err, user) => {
           if (err) {
             return res.status(400).json({ error: 'something went wrong' });
           } else {
@@ -110,7 +116,12 @@ exports.googlelogin = (req, res) => {
               });
               newUser.password = undefined;
               newUser.confirmPassword = undefined;
-
+              const message = `Thanks for signing up with Nomadic`
+              await sendEmail({
+                email: email,
+                subject: 'Welcome to nomadic',
+                message,
+              })
               const token = createToken(newUser._id);
               res.status(200).json({
                 status: 'success',
