@@ -63,7 +63,7 @@ exports.cancelBooking = catchAsync(async (req, res, next) => {
 });
 
 exports.getBlockedDates = catchAsync(async (req, res, next) => {
-  const blockedDates = await Booking.find({ rentalID: req.params.id }).select('startDate endDate');
+  const blockedDates = await Booking.find({ rentalID: req.params.id,isCancelled:false }).select('startDate endDate');
   if (!blockedDates) {
     return new AppError('Record of booking with given ID is not found', 404);
   }
