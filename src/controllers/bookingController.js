@@ -23,7 +23,7 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
     return new AppError('Booking failed', 404);
   }
   //check if dates are allready booked
-  const blockedDates = await Booking.find({ rentalID: req.body.rentalID }).select('startDate endDate');
+  const blockedDates = await Booking.find({ rentalID: req.body.rentalID,isCancelled:false  }).select('startDate endDate');
   blockedDates.map((date)=>{
     if(new Date(req.body.startDate) >=date.startDate || new Date(req.body.endDate) <= date.endDate){
       res.status(403).json({
