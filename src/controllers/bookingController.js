@@ -31,15 +31,17 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
         status: 'fail',
         message:'date is allready occupied'
       });
-    }
-  const userMessage=`thanks for booking with us`
+    }})
+    
+  const userMessage=`Thanks for booking with us`
+
   await sendEmail({
     email: req.body.userEmail,
     subject: 'Thanks for booking with nomadic',
     userMessage,
   })
   const owenerDetails = await User.findById(req.body.ownerId)
-  const ownerMessage=`thanks for booking with us`
+  const ownerMessage=`${req.body.userEmail} has booked your rental`
   await sendEmail({
     email: owenerDetails.email,
     subject: 'Thanks for booking with nomadic',
@@ -69,14 +71,14 @@ exports.cancelBooking = catchAsync(async (req, res, next) => {
   booking.isCancelled = req.body.isCancelled;
   await booking.save();
 
-  const userMessage=`booking cancelled successfully, `
+  const userMessage=`Your booking cancelled successfully. `
   await sendEmail({
     email: booking.email,
     subject: 'Booking cancelled',
     userMessage,
   })
   
-  const ownerMessage=`User has canclled booking on your rental `
+  const ownerMessage=`${booking.email} has canclled booking for your rental `
   const owenerDetails = await User.findById(booking.ownerId)
   await sendEmail({
     email: owenerDetails.email,
