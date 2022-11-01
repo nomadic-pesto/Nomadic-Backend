@@ -53,17 +53,6 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
     return;
   }
 
-  
-  // let d = new Date();
-  // blockedDates.map((date) => {
-  //   if (req.body.startDate >= d.valueOf(date.startDate) || req.body.endDate <= d.valueOf(date.endDate)) {
-  //     console.log(date.startDate);
-  //     res.status(403).json({
-  //       status: 'fail',
-  //       message: 'date is allready occupied',
-  //     });
-  //   }
-  // });
 
   const booking = await Booking.create({
     transactionID: req.body.transactionID,
@@ -177,7 +166,7 @@ exports.getAllBookingsUser = catchAsync(async (req, res, next) => {
   const bookings = await Booking.find({ userID: req.params.id }).populate({
     path: 'rentalID',
     select: ['rentalName', 'subDestination', 'noOfPeopleAccomodate', 'originalImages', 'price', 'state'],
-  });
+  }).sort({bookingDate:'-1'});
 
   if (!bookings) {
     return new AppError('you have made no booking', 404);
