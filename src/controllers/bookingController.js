@@ -5,6 +5,22 @@ const sendEmail = require('./../utils/email');
 const User = require('./../model/userModel');
 
 exports.bookaRental = catchAsync(async (req, res, next) => {
+// check if dates are allready booked
+// const blockedDates = await Booking.find({ rentalID: req.body.rentalID,isCancelled:false  }).select('startDate endDate');
+// console.log(blockedDates)
+// console.log(req.body.startDate)
+// console.log(req.body.endDate)
+// let d = new Date()
+// blockedDates.map((date)=>{
+//   if(req.body.startDate >=d.valueOf(date.startDate) || req.body.endDate <= d.valueOf(date.endDate)){
+//     console.log(date.startDate)
+//     res.status(403).json({
+//       status: 'fail',
+//       message:'date is allready occupied'
+//     });
+//   }})
+  
+
   const booking = await Booking.create({
     transactionID: req.body.transactionID,
     rentalID: req.body.rentalID,
@@ -23,29 +39,21 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
   if (!booking) {
     return new AppError('Booking failed', 404);
   }
-  //check if dates are allready booked
-  const blockedDates = await Booking.find({ rentalID: req.body.rentalID,isCancelled:false  }).select('startDate endDate');
-  blockedDates.map((date)=>{
-    if(new Date(req.body.startDate) >=date.startDate || new Date(req.body.endDate) <= date.endDate){
-      res.status(403).json({
-        status: 'fail',
-        message:'date is allready occupied'
-      });
-    }})
-    
-  const userMessage=`Thanks for booking with us`
-
+  
+  const userDetails = await User.findById(booking.userID)
   await sendEmail({
     email: req.body.userEmail,
     subject: 'Thanks for booking with nomadic',
-    userMessage,
+    name: userDetails.name,
+    messageBody:`Thanks for booking with us`,
   })
-  const owenerDetails = await User.findById(req.body.ownerId)
-  const ownerMessage=`${req.body.userEmail} has booked your rental`
+
+  const ownerDetails = await User.findById(req.body.ownerId)
   await sendEmail({
-    email: owenerDetails.email,
+    email: ownerDetails.email,
     subject: 'Thanks for booking with nomadic',
-    ownerMessage,
+    name:ownerDetails.name,
+    messageBody:`${req.body.userEmail} has booked your rental, check My orders page for more details `,
   })
 
   res.status(201).json({
@@ -58,7 +66,6 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
 
 exports.cancelBooking = catchAsync(async (req, res, next) => {
   const booking = await Booking.findById(req.params.id);
-  console.log(booking)
   if (!booking) {
     return new AppError('Record of booking with given ID is not found', 404);
   } else if (86400 <= Date.now() - booking.startDate) {
@@ -71,19 +78,21 @@ exports.cancelBooking = catchAsync(async (req, res, next) => {
   booking.isCancelled = req.body.isCancelled;
   await booking.save();
 
-  const userMessage=`Your booking cancelled successfully. `
+  const userDetails = await User.findById(booking.userID)
   await sendEmail({
-    email: booking.email,
+    email: booking.userEmail,
     subject: 'Booking cancelled',
-    userMessage,
+    name:userDetails.name,
+    messageBody: "Your booking is cancelled succesfully"
   })
   
-  const ownerMessage=`${booking.email} has canclled booking for your rental `
-  const owenerDetails = await User.findById(booking.ownerId)
+
+  const ownerDetails = await User.findById(booking.ownerId)
   await sendEmail({
-    email: owenerDetails.email,
+    email: ownerDetails.email,
     subject: 'Booking cancelled',
-    ownerMessage,
+    name: ownerDetails.name,
+    messageBody:`${booking.userEmail} has cancelled booking for your rental `,
   })
 
   res.status(200).json({

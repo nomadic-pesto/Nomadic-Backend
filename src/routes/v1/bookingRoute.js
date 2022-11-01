@@ -13,5 +13,5 @@ router.get('/getAllBookingUser/:id',authController.userAuthorization, bookingCon
 router.post('/bookARental',authController.userAuthorization, bookingController.bookaRental );
 router.patch('/cancelBooking/:id',authController.userAuthorization, bookingController.cancelBooking );
 
-authController.userAuthorization
+
 module.exports = router;
