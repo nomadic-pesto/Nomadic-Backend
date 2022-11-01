@@ -31,7 +31,14 @@ exports.signup = catchAsync(async (req, res, next) => {
     });
     let token = createToken(newUser._id);
     newUser.password = undefined;
-  
+    
+    const messageBody = `Thanks for signing up with Nomadic, login via https://nomadic-life.netlify.app/`
+      await sendEmail({
+        email: req.body.email,
+        subject: 'Welcome to nomadic',
+        name: req.body.name,
+        messageBody
+      })
     res.status(201).json({
       status: 'success',
       token,
@@ -88,7 +95,7 @@ exports.googlelogin = (req, res) => {
     .then((response) => {
       const { email_verified, name, email, sub } = response.payload;
       if (email_verified) {
-        User.findOne({ email }).exec((err, user) => {
+        User.findOne({ email }).exec(async(err, user) => {
           if (err) {
             return res.status(400).json({ error: 'something went wrong' });
           } else {
@@ -110,7 +117,12 @@ exports.googlelogin = (req, res) => {
               });
               newUser.password = undefined;
               newUser.confirmPassword = undefined;
-
+              const message = `Thanks for signing up with Nomadic`
+              await sendEmail({
+                email: email,
+                subject: 'Welcome to nomadic',
+                message,
+              })
               const token = createToken(newUser._id);
               res.status(200).json({
                 status: 'success',
@@ -168,13 +180,14 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   //create reset url
   const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
   //set message
-  const message = `Forgot your password? set your new password by following this link: ${resetURL}.\n`;
+  const messageBody = `Forgot your password? set your new password by following this link: ${resetURL}`
 
   try {
     await sendEmail({
       email: user.email,
       subject: 'Set your password (valid for 10 min)',
-      message,
+      name:user.name,
+      messageBody
     });
 
     res.status(200).json({
