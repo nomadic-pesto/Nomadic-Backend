@@ -109,7 +109,7 @@ exports.googlelogin = (req, res) => {
                 },
               });
             } else {
-              const newUser = User.create({
+              const newUser = await User.create({
                 name: name,
                 email: email,
                 password: sub,
@@ -117,11 +117,12 @@ exports.googlelogin = (req, res) => {
               });
               newUser.password = undefined;
               newUser.confirmPassword = undefined;
-              const message = `Thanks for signing up with Nomadic`
+              const messageBody = `Thanks for signing up with Nomadic`
               await sendEmail({
                 email: email,
                 subject: 'Welcome to nomadic',
-                message,
+                name,
+                messageBody,
               })
               const token = createToken(newUser._id);
               res.status(200).json({
