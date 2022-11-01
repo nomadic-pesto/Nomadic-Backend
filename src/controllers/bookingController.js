@@ -8,7 +8,7 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
 
   //check if past dates
 
-  if (new Date(req.body.startDate) < new Date() || new Date(req.body.endDate) < new Date()) {
+  if (new Date(+req.body.startDate) < new Date() || new Date(+req.body.endDate) < new Date()) {
     res.status(403).json({
       status: 'fail',
       message: "can't book past dates",
@@ -24,10 +24,10 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
       {
         $and: [
           {
-            startDate: { $gte: new Date(req.body.startDate) },
+            startDate: { $gte: new Date(+req.body.startDate) },
           },
           {
-            startDate: { $lte: new Date(req.body.endDate) },
+            startDate: { $lte: new Date(+req.body.endDate) },
           },
         ],
       },
@@ -35,10 +35,10 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
       {
         $and: [
           {
-            endDate: { $gte: new Date(req.body.startDate) },
+            endDate: { $gte: new Date(+req.body.startDate) },
           },
           {
-            endDate: { $lte: new Date(req.body.endDate) },
+            endDate: { $lte: new Date(+req.body.endDate) },
           },
         ],
       },
