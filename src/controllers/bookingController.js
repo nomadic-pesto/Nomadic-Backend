@@ -5,6 +5,7 @@ const sendEmail = require('./../utils/email');
 const User = require('./../model/userModel');
 
 exports.bookaRental = catchAsync(async (req, res, next) => {
+
   //check if past dates
 
   if (new Date(req.body.startDate) < new Date() || new Date(req.body.endDate) < new Date()) {
@@ -51,6 +52,7 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
     });
     return;
   }
+
   
   // let d = new Date();
   // blockedDates.map((date) => {
