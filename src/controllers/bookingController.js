@@ -5,21 +5,63 @@ const sendEmail = require('./../utils/email');
 const User = require('./../model/userModel');
 
 exports.bookaRental = catchAsync(async (req, res, next) => {
-// check if dates are allready booked
-// const blockedDates = await Booking.find({ rentalID: req.body.rentalID,isCancelled:false  }).select('startDate endDate');
-// console.log(blockedDates)
-// console.log(req.body.startDate)
-// console.log(req.body.endDate)
-// let d = new Date()
-// blockedDates.map((date)=>{
-//   if(req.body.startDate >=d.valueOf(date.startDate) || req.body.endDate <= d.valueOf(date.endDate)){
-//     console.log(date.startDate)
-//     res.status(403).json({
-//       status: 'fail',
-//       message:'date is allready occupied'
-//     });
-//   }})
+  //check if past dates
+
+  if (new Date(req.body.startDate) < new Date() || new Date(req.body.endDate) < new Date()) {
+    res.status(403).json({
+      status: 'fail',
+      message: "can't book past dates",
+    });
+    return;
+  }
+
+  // check if dates are allready booked
+  const blockedDates = await Booking.find({
+    rentalID: req.body.rentalID,
+    isCancelled: false,
+    $or: [
+      {
+        $and: [
+          {
+            startDate: { $gte: new Date(req.body.startDate) },
+          },
+          {
+            startDate: { $lte: new Date(req.body.endDate) },
+          },
+        ],
+      },
+
+      {
+        $and: [
+          {
+            endDate: { $gte: new Date(req.body.startDate) },
+          },
+          {
+            endDate: { $lte: new Date(req.body.endDate) },
+          },
+        ],
+      },
+    ],
+  }).select('startDate endDate');
+
+  if (blockedDates && blockedDates.length > 0) {
+    res.status(403).json({
+      status: 'fail',
+      message: 'date is allready occupied',
+    });
+    return;
+  }
   
+  // let d = new Date();
+  // blockedDates.map((date) => {
+  //   if (req.body.startDate >= d.valueOf(date.startDate) || req.body.endDate <= d.valueOf(date.endDate)) {
+  //     console.log(date.startDate);
+  //     res.status(403).json({
+  //       status: 'fail',
+  //       message: 'date is allready occupied',
+  //     });
+  //   }
+  // });
 
   const booking = await Booking.create({
     transactionID: req.body.transactionID,
@@ -35,26 +77,26 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
     bookingCost: req.body.bookingCost,
   });
 
-//error if booking create fails
+  //error if booking create fails
   if (!booking) {
     return new AppError('Booking failed', 404);
   }
-  
-  const userDetails = await User.findById(booking.userID)
+
+  const userDetails = await User.findById(booking.userID);
   await sendEmail({
     email: req.body.userEmail,
     subject: 'Thanks for booking with nomadic',
     name: userDetails.name,
-    messageBody:`Thanks for booking with us`,
-  })
+    messageBody: `Thanks for booking with us`,
+  });
 
-  const ownerDetails = await User.findById(req.body.ownerId)
+  const ownerDetails = await User.findById(req.body.ownerId);
   await sendEmail({
     email: ownerDetails.email,
     subject: 'Thanks for booking with nomadic',
-    name:ownerDetails.name,
-    messageBody:`${req.body.userEmail} has booked your rental, check My orders page for more details `,
-  })
+    name: ownerDetails.name,
+    messageBody: `${req.body.userEmail} has booked your rental, check My orders page for more details `,
+  });
 
   res.status(201).json({
     status: 'success',
@@ -78,22 +120,21 @@ exports.cancelBooking = catchAsync(async (req, res, next) => {
   booking.isCancelled = req.body.isCancelled;
   await booking.save();
 
-  const userDetails = await User.findById(booking.userID)
+  const userDetails = await User.findById(booking.userID);
   await sendEmail({
     email: booking.userEmail,
     subject: 'Booking cancelled',
-    name:userDetails.name,
-    messageBody: "Your booking is cancelled succesfully"
-  })
-  
+    name: userDetails.name,
+    messageBody: 'Your booking is cancelled succesfully',
+  });
 
-  const ownerDetails = await User.findById(booking.ownerId)
+  const ownerDetails = await User.findById(booking.ownerId);
   await sendEmail({
     email: ownerDetails.email,
     subject: 'Booking cancelled',
     name: ownerDetails.name,
-    messageBody:`${booking.userEmail} has cancelled booking for your rental `,
-  })
+    messageBody: `${booking.userEmail} has cancelled booking for your rental `,
+  });
 
   res.status(200).json({
     status: 'success',
@@ -102,7 +143,7 @@ exports.cancelBooking = catchAsync(async (req, res, next) => {
 });
 
 exports.getBlockedDates = catchAsync(async (req, res, next) => {
-  const blockedDates = await Booking.find({ rentalID: req.params.id,isCancelled:false }).select('startDate endDate');
+  const blockedDates = await Booking.find({ rentalID: req.params.id, isCancelled: false }).select('startDate endDate');
   if (!blockedDates) {
     return new AppError('Record of booking with given ID is not found', 404);
   }
