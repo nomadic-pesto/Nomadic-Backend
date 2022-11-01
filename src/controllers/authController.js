@@ -129,7 +129,7 @@ exports.googlelogin = (req, res) => {
                 status: 'success',
                 token,
                 data: {
-                  newUser,
+                  user:newUser,
                 },
               });
             }
