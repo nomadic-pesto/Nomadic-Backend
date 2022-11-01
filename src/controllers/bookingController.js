@@ -6,19 +6,19 @@ const User = require('./../model/userModel');
 
 exports.bookaRental = catchAsync(async (req, res, next) => {
 // check if dates are allready booked
-// const blockedDates = await Booking.find({ rentalID: req.body.rentalID,isCancelled:false  }).select('startDate endDate');
-// console.log(blockedDates)
-// console.log(req.body.startDate)
-// console.log(req.body.endDate)
-// let d = new Date()
-// blockedDates.map((date)=>{
-//   if(req.body.startDate >=d.valueOf(date.startDate) || req.body.endDate <= d.valueOf(date.endDate)){
-//     console.log(date.startDate)
-//     res.status(403).json({
-//       status: 'fail',
-//       message:'date is allready occupied'
-//     });
-//   }})
+const blockedDates = await Booking.find({ rentalID: req.body.rentalID,isCancelled:false  }).select('startDate endDate');
+console.log(blockedDates)
+console.log(req.body.startDate)
+console.log(req.body.endDate)
+let d = new Date()
+blockedDates.map((date)=>{
+  if(req.body.startDate >=d.valueOf(date.startDate) || req.body.endDate <= d.valueOf(date.endDate)){
+    console.log(date.startDate)
+    res.status(403).json({
+      status: 'fail',
+      message:'date is allready occupied'
+    });
+  }})
   
 
   const booking = await Booking.create({
