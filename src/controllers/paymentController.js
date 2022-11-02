@@ -1,7 +1,7 @@
 const catchAsync = require('./../utils/catchAsync');
 const razorpayInstance = require('./../server')
 const crypto = require('crypto')
-
+const Logger = require('../utils/logger')
 
 
 exports.checkout = catchAsync( async(req,res,next)=>{
@@ -17,6 +17,7 @@ res.status(200).json({
     success: true,
     data : order
 })
+Logger.ServiceLogger.log('info',`order is created successfully `)
 })
 
 exports.paymentVerification = catchAsync(async (req, res) => {
@@ -32,10 +33,12 @@ exports.paymentVerification = catchAsync(async (req, res) => {
 
   
     if (isAuthentic) {
+      Logger.ServiceLogger.log('info',`payment is verified, payment ID: ${req.body.razorpay_payment_id}`)
     res.status(200).json({
         status: true,
     })
     } else {
+      Logger.ServiceLogger.log('info',`payment is not authentic payment ID:${req.body.razorpay_payment_id}`)
       res.status(400).json({
         status: false,
       });
