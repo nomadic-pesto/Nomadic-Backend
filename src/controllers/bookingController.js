@@ -3,11 +3,12 @@ const AppError = require('./../utils/appError');
 const Booking = require('./../model/bookingsModel');
 const sendEmail = require('./../utils/email');
 const User = require('./../model/userModel');
+const Logger = require('../utils/logger')
 
 exports.bookaRental = catchAsync(async (req, res, next) => {
 
   //check if past dates
-
+  Logger.ServiceLogger.log('info',`Checking booking date is not from past for rental:${req.body.rentalID} `)
   if (new Date(+req.body.startDate) < new Date() || new Date(+req.body.endDate) < new Date()) {
     res.status(403).json({
       status: 'fail',
@@ -15,7 +16,7 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
     });
     return;
   }
-
+  Logger.ServiceLogger.log('info',`Checking for blocked dates for rental:${req.body.rentalID} `)
   // check if dates are allready booked
   const blockedDates = await Booking.find({
     rentalID: req.body.rentalID,
@@ -46,6 +47,7 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
   }).select('startDate endDate');
 
   if (blockedDates && blockedDates.length > 0) {
+    Logger.ServiceLogger.log('warn',`Booking date is occupied for rental:${req.body.rentalID} `)
     res.status(403).json({
       status: 'fail',
       message: 'date is allready occupied',
@@ -67,7 +69,7 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
     ownerId: req.body.ownerId,
     bookingCost: req.body.bookingCost,
   });
-
+  Logger.ServiceLogger.log('info',`Sucess: booking done for rental:${req.body.rentalID} by  user:${req.body.userID}`)
   //error if booking create fails
   if (!booking) {
     return new AppError('Booking failed', 404);
@@ -80,6 +82,7 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
     name: userDetails.name,
     messageBody: `Thanks for booking with us`,
   });
+  Logger.ServiceLogger.log('info',`Sucess: Email sent to user:${req.body.email}`)
 
   const ownerDetails = await User.findById(req.body.ownerId);
   await sendEmail({
@@ -88,7 +91,9 @@ exports.bookaRental = catchAsync(async (req, res, next) => {
     name: ownerDetails.name,
     messageBody: `${req.body.userEmail} has booked your rental, check My orders page for more details `,
   });
+  Logger.ServiceLogger.log('info',`Sucess: Email sent to owner:${ownerDetails.email}`)
 
+  Logger.ServiceLogger.log('info',`Sucess: response sent for booking`)
   res.status(201).json({
     status: 'success',
     data: {
@@ -110,6 +115,7 @@ exports.cancelBooking = catchAsync(async (req, res, next) => {
 
   booking.isCancelled = req.body.isCancelled;
   await booking.save();
+  Logger.ServiceLogger.log('info',`Sucess: cancelled booking for user:${booking.userEmail}`)
 
   const userDetails = await User.findById(booking.userID);
   await sendEmail({
@@ -118,6 +124,7 @@ exports.cancelBooking = catchAsync(async (req, res, next) => {
     name: userDetails.name,
     messageBody: 'Your booking is cancelled succesfully',
   });
+Logger.ServiceLogger.log('info',`Sucess: Email sent to user:${booking.userEmail}`)
 
   const ownerDetails = await User.findById(booking.ownerId);
   await sendEmail({
@@ -126,7 +133,9 @@ exports.cancelBooking = catchAsync(async (req, res, next) => {
     name: ownerDetails.name,
     messageBody: `${booking.userEmail} has cancelled booking for your rental `,
   });
+  Logger.ServiceLogger.log('info',`Sucess: email sent to owner:${ownerDetails.email}`)
 
+  Logger.ServiceLogger.log('info',`Sucess: cancelled booking for user:${booking.userEmail} and response sent`)
   res.status(200).json({
     status: 'success',
     data: { booking },
@@ -138,7 +147,7 @@ exports.getBlockedDates = catchAsync(async (req, res, next) => {
   if (!blockedDates) {
     return new AppError('Record of booking with given ID is not found', 404);
   }
-
+  Logger.ServiceLogger.log('info','Success:generated block dates successfully')
   res.status(200).json({
     status: 'success',
     data: { blockedDates },
@@ -155,7 +164,7 @@ exports.getAllBookingsAdmin = catchAsync(async (req, res, next) => {
   if (!bookings) {
     return new AppError('There is no booking for your rental', 404);
   }
-
+  Logger.ServiceLogger.log('info','Sucess: Get all bookings for admin ')
   res.status(200).json({
     status: 'success',
     data: { bookings },
@@ -172,6 +181,7 @@ exports.getAllBookingsUser = catchAsync(async (req, res, next) => {
     return new AppError('you have made no booking', 404);
   }
 
+  Logger.ServiceLogger.log('info','Sucess: Get all bookings for admin ')
   res.status(200).json({
     status: 'success',
     data: { bookings },

@@ -6,9 +6,11 @@ const { promisify } = require('util');
 const sendEmail = require('./../utils/email');
 const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
+const Logger = require('../utils/logger')
 
 //importing user modal
 const User = require('./../model/userModel');
+const { decode } = require('punycode');
 
 //
 const client = new OAuth2Client('817056518934-0p9ituunl6pnooif02pfgli1kr4n5ldh.apps.googleusercontent.com');
@@ -29,9 +31,12 @@ exports.signup = catchAsync(async (req, res, next) => {
       password: req.body.password,
       confirmPassword: req.body.confirmPassword,
     });
+
+    Logger.ServiceLogger.log('info',`Booking for user:${req.body.name} `)
     let token = createToken(newUser._id);
     newUser.password = undefined;
-    
+    Logger.ServiceLogger.log('info',`Generated token for user:${req.body.name} `)
+
     const messageBody = `Thanks for signing up with Nomadic, login via https://nomadic-life.netlify.app/`
       await sendEmail({
         email: req.body.email,
@@ -39,6 +44,8 @@ exports.signup = catchAsync(async (req, res, next) => {
         name: req.body.name,
         messageBody
       })
+
+      Logger.ServiceLogger.log('info',`Welcome mail sent for user:${req.body.name} `)
     res.status(201).json({
       status: 'success',
       token,
@@ -46,15 +53,15 @@ exports.signup = catchAsync(async (req, res, next) => {
         user: newUser,
       },
     });
+    Logger.ServiceLogger.log('info',`resonse sent for user login:${req.body.name} `)
   } catch (error) {
     if (error.code === 11000) {
       const value = error.keyValue.email;
+      Logger.ServiceLogger.log('info',`user:${req.body.email} allready exists`)
       const message = `User with this email: ${value} allready exist. Please use another email!`;
       res.status(403).json({ status: 'fail', data: message });
     }
   }
-
-
 });
 
 // login controller
@@ -74,6 +81,7 @@ exports.login = catchAsync(async (req, res, next) => {
   let token = createToken(user._id);
   user.password = undefined;
 
+  Logger.ServiceLogger.log('info',`login response sent for user:${req.body.email} `)
   res.status(200).json({
     status: 'success',
     token,
@@ -117,13 +125,16 @@ exports.googlelogin = (req, res) => {
               newUser.password = undefined;
               newUser.confirmPassword = undefined;
               const messageBody = `Thanks for signing up with Nomadic`
+              Logger.ServiceLogger.log('info',`Created new user for user:${email} `)
               await sendEmail({
                 email: email,
                 subject: 'Welcome to nomadic',
                 name,
                 messageBody,
               })
+              Logger.ServiceLogger.log('info',`Welcome mail sent for new google user:${email} `)
               const token = createToken(newUser._id);
+
               res.status(200).json({
                 status: 'success',
                 token,
@@ -163,6 +174,7 @@ exports.userAuthorization = catchAsync(async (req, res, next) => {
   }
 
   // granting access to user
+  Logger.ServiceLogger.log('info',`user ${decoded.id} is authorized`)
   req.user = currentUser;
   next();
 });
@@ -190,10 +202,12 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       messageBody
     });
 
+    Logger.ServiceLogger.log('info',`reset mail is sent to user ${req.body.email}`)
     res.status(200).json({
       status: 'success',
       message: 'Token sent to email!',
     });
+    Logger.ServiceLogger.log('info',`response sent to user ${req.body.email}`)
   } catch (err) {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
@@ -215,6 +229,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   //set new password if user token has not expired
   if (!user) {
+    Logger.ServiceLogger.log('info',`token is invalid`)
     return next(new AppError('Token is invalid or has expired', 400));
   }
   user.password = req.body.password;
@@ -227,6 +242,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.password = undefined;
 
   //send success message
+  Logger.ServiceLogger.log('info',`password is reset successfully and response is sent`)
   res.status(200).json({
     status: 'success',
     data: { user },
@@ -241,6 +257,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   // Check if POSTed current password is correct
   if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    Logger.ServiceLogger.log('info',`user current password is wrong`)
     return next(new AppError('Your current password is wrong.', 401));
   }
 
@@ -251,6 +268,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.password = undefined;
   user.confirmPassword = undefined;
   //send success message
+  Logger.ServiceLogger.log('info',`Password is updated successfully and response is sent`)
   res.status(200).json({
     status: 'success',
     data: { user },
@@ -265,8 +283,10 @@ exports.updateUser = catchAsync(async (req, res, next) => {
     runValidators: false,
   });
 
+  Logger.ServiceLogger.log('info',`user ${req.user.id} data is updated successfully`)
   res.status(200).json({
     status: 'success',
     data: { user },
   });
+
 });
