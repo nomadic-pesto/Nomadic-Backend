@@ -60,7 +60,6 @@ exports.signup = catchAsync(async (req, res, next) => {
 // login controller
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(email)
   //check email and password is present in body
   if (!email || !password) {
     return next(new AppError('Provide valid email and password', 400));
