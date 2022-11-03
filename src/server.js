@@ -2,7 +2,7 @@
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 //initaitng env config
-dotenv.config({ path: './src/config/config.env' });
+dotenv.config({ path: '../.env' });
 //importing app and razprpay packages
 const app = require('./app');
 const Razorpay = require('razorpay')
