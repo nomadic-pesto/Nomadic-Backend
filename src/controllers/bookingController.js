@@ -115,7 +115,7 @@ exports.cancelBooking = catchAsync(async (req, res, next) => {
 
   booking.isCancelled = req.body.isCancelled;
   await booking.save();
-  Logger.ServiceLogger.log('info',`Sucess: cancelled booking for user:${booking.userEmail}`)
+  Logger.ServiceLogger.log('info',`booking is cancelled for user:${booking.userEmail}`)
 
   const userDetails = await User.findById(booking.userID);
   await sendEmail({
@@ -147,7 +147,7 @@ exports.getBlockedDates = catchAsync(async (req, res, next) => {
   if (!blockedDates) {
     return new AppError('Record of booking with given ID is not found', 404);
   }
-  Logger.ServiceLogger.log('info','Success:generated block dates successfully')
+  Logger.ServiceLogger.log('info','generated block dates successfully')
   res.status(200).json({
     status: 'success',
     data: { blockedDates },
@@ -164,7 +164,7 @@ exports.getAllBookingsAdmin = catchAsync(async (req, res, next) => {
   if (!bookings) {
     return new AppError('There is no booking for your rental', 404);
   }
-  Logger.ServiceLogger.log('info','Sucess: Get all bookings for admin ')
+  Logger.ServiceLogger.log('info','Get all bookings for admin')
   res.status(200).json({
     status: 'success',
     data: { bookings },
@@ -181,7 +181,7 @@ exports.getAllBookingsUser = catchAsync(async (req, res, next) => {
     return new AppError('you have made no booking', 404);
   }
 
-  Logger.ServiceLogger.log('info','Sucess: Get all bookings for admin ')
+  Logger.ServiceLogger.log('info','Get all bookings for user ')
   res.status(200).json({
     status: 'success',
     data: { bookings },
