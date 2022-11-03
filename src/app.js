@@ -1,3 +1,4 @@
+//importing cors and dependencies
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -32,6 +33,7 @@ app.options('*', cors());
 // v1 api routes
 app.use('/v1', routes); 
 
+//global error handler
 app.use(gloabalErrorHandler)
 
 module.exports = app;

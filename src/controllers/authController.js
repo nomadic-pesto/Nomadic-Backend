@@ -1,13 +1,21 @@
+// impoting dependencies
 const jwt = require('jsonwebtoken');
-const User = require('./../model/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const { promisify } = require('util');
 const sendEmail = require('./../utils/email');
 const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
+const Logger = require('../utils/logger')
 
+//importing user modal
+const User = require('./../model/userModel');
+const { decode } = require('punycode');
+
+//
 const client = new OAuth2Client('817056518934-0p9ituunl6pnooif02pfgli1kr4n5ldh.apps.googleusercontent.com');
+
+//JST token generator
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -16,29 +24,49 @@ const createToken = (id) => {
 
 // signup controller
 exports.signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    confirmPassword: req.body.confirmPassword,
-  });
+  try {
+    const newUser = await User.create({
+      name: req.body.name,
+      email: req.body.email,
+      password: req.body.password,
+      confirmPassword: req.body.confirmPassword,
+    });
 
-  let token = createToken(newUser._id);
-  newUser.password = undefined;
+    Logger.ServiceLogger.log('info',`new user created and added to database`)
+    let token = createToken(newUser._id);
+    newUser.password = undefined;
+    Logger.ServiceLogger.log('info',`Generated token for user:${req.body.name} `)
 
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+    const messageBody = `Thanks for signing up with Nomadic, login via https://nomadic-life.netlify.app/`
+      await sendEmail({
+        email: req.body.email,
+        subject: 'Welcome to nomadic',
+        name: req.body.name,
+        messageBody
+      })
+
+      Logger.ServiceLogger.log('info',`Welcome mail sent for user:${req.body.name} `)
+    res.status(201).json({
+      status: 'success',
+      token,
+      data: {
+        user: newUser,
+      },
+    });
+    Logger.ServiceLogger.log('info',`resonse sent for user login:${req.body.name} `)
+  } catch (error) {
+    if (error.code === 11000) {
+      const value = error.keyValue.email;
+      Logger.ServiceLogger.log('info',`user:${req.body.email} allready exists`)
+      const message = `User with this email: ${value} allready exist. Please use another email!`;
+      res.status(403).json({ status: 'fail', data: message });
+    }
+  }
 });
 
 // login controller
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-
   //check email and password is present in body
   if (!email || !password) {
     return next(new AppError('Provide valid email and password', 400));
@@ -53,6 +81,7 @@ exports.login = catchAsync(async (req, res, next) => {
   let token = createToken(user._id);
   user.password = undefined;
 
+  Logger.ServiceLogger.log('info',`login response sent for user:${req.body.email} `)
   res.status(200).json({
     status: 'success',
     token,
@@ -62,6 +91,7 @@ exports.login = catchAsync(async (req, res, next) => {
   });
 });
 
+//googlelogin 
 exports.googlelogin = (req, res) => {
   const { tokenId } = req.body;
   client
@@ -72,7 +102,7 @@ exports.googlelogin = (req, res) => {
     .then((response) => {
       const { email_verified, name, email, sub } = response.payload;
       if (email_verified) {
-        User.findOne({ email }).exec((err, user) => {
+        User.findOne({ email }).exec(async(err, user) => {
           if (err) {
             return res.status(400).json({ error: 'something went wrong' });
           } else {
@@ -86,7 +116,7 @@ exports.googlelogin = (req, res) => {
                 },
               });
             } else {
-              const newUser = User.create({
+              const newUser = await User.create({
                 name: name,
                 email: email,
                 password: sub,
@@ -94,21 +124,28 @@ exports.googlelogin = (req, res) => {
               });
               newUser.password = undefined;
               newUser.confirmPassword = undefined;
-
-              console.log(newUser);
+              const messageBody = `Thanks for signing up with Nomadic`
+              Logger.ServiceLogger.log('info',`Created new user for user:${email} `)
+              await sendEmail({
+                email: email,
+                subject: 'Welcome to nomadic',
+                name,
+                messageBody,
+              })
+              Logger.ServiceLogger.log('info',`Welcome mail sent for new google user:${email} `)
               const token = createToken(newUser._id);
+
               res.status(200).json({
                 status: 'success',
                 token,
                 data: {
-                  newUser,
+                  user:newUser,
                 },
               });
             }
           }
         });
       }
-      console.log(response.payload);
     });
 };
 
@@ -137,6 +174,7 @@ exports.userAuthorization = catchAsync(async (req, res, next) => {
   }
 
   // granting access to user
+  Logger.ServiceLogger.log('info',`user ${decoded.id} is authorized`)
   req.user = currentUser;
   next();
 });
@@ -150,24 +188,26 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
   // create random token
   const resetToken = user.createPasswordResetToken();
-  console.log(resetToken);
   await user.save({ validateBeforeSave: false });
   //create reset url
   const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
   //set message
-  const message = `Forgot your password? set your new password by following this link: ${resetURL}.\n`;
+  const messageBody = `Forgot your password? set your new password by following this link: ${resetURL}`
 
   try {
     await sendEmail({
       email: user.email,
       subject: 'Set your password (valid for 10 min)',
-      message,
+      name:user.name,
+      messageBody
     });
 
+    Logger.ServiceLogger.log('info',`reset mail is sent to user ${req.body.email}`)
     res.status(200).json({
       status: 'success',
       message: 'Token sent to email!',
     });
+    Logger.ServiceLogger.log('info',`response sent to user ${req.body.email}`)
   } catch (err) {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
@@ -189,6 +229,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   //set new password if user token has not expired
   if (!user) {
+    Logger.ServiceLogger.log('info',`token is invalid`)
     return next(new AppError('Token is invalid or has expired', 400));
   }
   user.password = req.body.password;
@@ -200,8 +241,8 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.confirmPassword = undefined;
   user.password = undefined;
 
-  
   //send success message
+  Logger.ServiceLogger.log('info',`password is reset successfully and response is sent`)
   res.status(200).json({
     status: 'success',
     data: { user },
@@ -216,6 +257,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   // Check if POSTed current password is correct
   if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    Logger.ServiceLogger.log('info',`user current password is wrong`)
     return next(new AppError('Your current password is wrong.', 401));
   }
 
@@ -226,8 +268,25 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.password = undefined;
   user.confirmPassword = undefined;
   //send success message
+  Logger.ServiceLogger.log('info',`Password is updated successfully and response is sent`)
   res.status(200).json({
     status: 'success',
     data: { user },
   });
+});
+
+exports.updateUser = catchAsync(async (req, res, next) => {
+  // Get user and update user from collection
+
+  const user = await User.findByIdAndUpdate(req.user.id, req.body, {
+    new: true,
+    runValidators: false,
+  });
+
+  Logger.ServiceLogger.log('info',`user ${req.user.id} data is updated successfully`)
+  res.status(200).json({
+    status: 'success',
+    data: { user },
+  });
+
 });

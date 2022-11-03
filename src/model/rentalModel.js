@@ -1,21 +1,19 @@
+//importing mongoose
 const mongoose = require('mongoose');
 
-
+//rental schema
 const rentalSchema = new mongoose.Schema({
   rentalName: {
     type: String,
     required: [true, 'Property Name is required'],
-    lowercase: true,
   },
   destination: {
     type: String,
     required: [true, 'Destination is required'],
-    lowercase: true,
   },
   subDestination: {
     type: String,
     required: [true, 'Sub-destination is required'],
-    lowercase: true,
   },
   noOfPeopleAccomodate: {
     type: Number,
@@ -66,15 +64,22 @@ const rentalSchema = new mongoose.Schema({
   },
   noOfReview: {
     type: Number,
-    default: 0,
+    default: 30,
     required: [true, 'Review Average is required'],
   },
-    ownerId:{
-        type: mongoose.Schema.ObjectId,
-        ref:'User'
-    }
+  ownerId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+  },
+  userReview:[{
+    name:String,
+    date:String,
+    rating:String,
+    review:String,}
+  ]
 });
 
+rentalSchema.index({ rentalName: 1, destination: 1, subDestination: 1, price: 1, avgReview: -1, ownerId: 1 });
 const Rental = mongoose.model('Rental', rentalSchema);
 
 module.exports = Rental;

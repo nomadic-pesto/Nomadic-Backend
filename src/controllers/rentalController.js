@@ -2,9 +2,9 @@ const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const Rental = require('./../model/rentalModel');
 const RentalFilterFeature = require('./../utils/rentalFilterFeatures');
+const Logger = require('../utils/logger')
 
-
-exports.addRental = catchAsync(async (req, res, next) => {
+exports.addRental = catchAsync( async (req, res, next) => {
 
   const newRental = await Rental.create({
     rentalName: req.body.rentalName,
@@ -23,9 +23,10 @@ exports.addRental = catchAsync(async (req, res, next) => {
     thumbnailImages: req.body.thumbnailImages,
     avgReview: req.body.avgReview,
     noOfReview: req.body.noOfReview,
-    ownerId:req.body.ownerId
+    ownerId:req.body.ownerId,
+    userReview:req.body.userReview
   });
-
+  Logger.ServiceLogger.log('info',`New rental added rental:${req.body.rentalName}`)
   res.status(201).json({
     status: 'success',
     data: {
@@ -37,8 +38,12 @@ exports.addRental = catchAsync(async (req, res, next) => {
 exports.getRentalById = catchAsync(async (req,res,next)=>{
     const rental = await Rental.findById(req.params.id)
 
-    if(!rental){ return new AppError('Rental with given ID is not found', 404)}
+    if(!rental){ 
+      Logger.ServiceLogger.log('info',`Rental with given ID${req.params.id} is not found`)
+      return new AppError('Rental with given ID is not found', 404)
+    }
 
+    Logger.ServiceLogger.log('info',`rental details of ID: ${req.params.id} published`)
     res.status(200).json({
         status: 'success',
         data: {
@@ -66,8 +71,8 @@ exports.getAllRental = catchAsync( async (req,res,next)=>{
     })
  // querying the data
     const tour = new RentalFilterFeature(Rental.find(),req.query).destinationFilter().sort().paginate()
-    console.log(req.query)
     const tours = await tour.query
+    Logger.ServiceLogger.log('info',`response sent for get all rental`)
     res.status(200).json({
         status: 'success',
         results: tours.length,
@@ -81,8 +86,11 @@ exports.getAllRental = catchAsync( async (req,res,next)=>{
 exports.getRentalByOwner = catchAsync( async (req,res,next)=>{
     const rental = await Rental.find({ownerId:req.params.id})
 
-    if(!rental){return new AppError('you have no rental listed', 404)}
-
+    if(!rental){
+      Logger.ServiceLogger.log('info',`you have no rental listed`)
+      return new AppError('you have no rental listed', 404)
+    }
+    Logger.ServiceLogger.log('info',`Response sent for get rental by owner`)
     res.status(200).json({
         status: 'success',
         data: {
@@ -106,14 +114,14 @@ exports.searchForRental = catchAsync( async (req,res,next)=>{
       delete req.query[key];
     }
   })
-  // const rentals = await Rental.find({$or:[{destination:req.query.data},{subDestination:req.query.data},{rentalName:req.query.data}]})
-console.log(req.query.data)
 
-  console.log(req.query.data)
   let rentals = await  new RentalFilterFeature(Rental.find(),req.query).searchFilter()
   rentals = rentals.query
-  if(!rentals){ return new AppError('No rental found', 404)}
-
+  if(!rentals){ 
+    Logger.ServiceLogger.log('info',`No rental found`)
+    return new AppError('No rental found', 404)
+  }
+  Logger.ServiceLogger.log('info',`Response sent for search for renal`)
   res.status(200).json({
     status: 'success',
     data: {
@@ -126,8 +134,12 @@ console.log(req.query.data)
 exports.updateRental = catchAsync( async(req,res,next)=>{
     const rental = await Rental.findByIdAndUpdate(req.params.id,req.body,{new: true})
 
-    if(!rental){return new AppError('you have no rental listed', 404)}
+    if(!rental){
+      Logger.ServiceLogger.log('info',`you have no rental listed`)
+      return new AppError('you have no rental listed', 404)
+    }
 
+    Logger.ServiceLogger.log('info',`rental was updated and response sent for update rental`)
     res.status(200).json({
         status: 'success',
         data: {
