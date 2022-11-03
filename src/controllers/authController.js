@@ -32,7 +32,7 @@ exports.signup = catchAsync(async (req, res, next) => {
       confirmPassword: req.body.confirmPassword,
     });
 
-    Logger.ServiceLogger.log('info',`Booking for user:${req.body.name} `)
+    Logger.ServiceLogger.log('info',`new user created and added to database`)
     let token = createToken(newUser._id);
     newUser.password = undefined;
     Logger.ServiceLogger.log('info',`Generated token for user:${req.body.name} `)

@@ -90,7 +90,7 @@ exports.getRentalByOwner = catchAsync( async (req,res,next)=>{
       Logger.ServiceLogger.log('info',`you have no rental listed`)
       return new AppError('you have no rental listed', 404)
     }
-    Logger.ServiceLogger.log('info',`Response sent for get renatal by owner`)
+    Logger.ServiceLogger.log('info',`Response sent for get rental by owner`)
     res.status(200).json({
         status: 'success',
         data: {
